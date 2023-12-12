@@ -88,7 +88,7 @@ func FindSongById(songid uint) (Song, error) {
 	return song, nil
 }
 
-func DeleteSong(songid uint) error {
+func RemoveSong(songid uint) error {
 	var song Song
 	if err := DB.Find(&song, songid).First(&song).Error; err == nil {
 		DB.Delete(song)
@@ -113,4 +113,38 @@ func SyncSong(changes func(song *Song), songid ...uint) (string, error) {
 		changes(&song)
 		return song.Path, DB.Updates(song).Error
 	}
+}
+
+func AddPlaylist(playlist PlayList) error {
+	return DB.Create(playlist).Error
+}
+
+func UpdatePlayList(pid uint, changes func(*PlayList)) error {
+	var playlist PlayList
+	if err := DB.Find(&playlist, pid).First(&playlist).Error; err != nil {
+		return err
+	}
+	changes(&playlist)
+	return DB.Updates(playlist).Error
+}
+
+func RemovePlaylist(pid uint) error {
+	var playlist PlayList
+	if err := DB.Find(&playlist, pid).First(&playlist).Error; err == nil {
+		DB.Delete(playlist)
+		return err
+	} else {
+		return err
+	}
+}
+
+func FindAllSongs() ([]Song, error) {
+	var songs []Song
+	err := DB.Find(&songs).Error
+	return songs, err
+}
+func FindAllPL() ([]PlayList, error) {
+	var playlists []PlayList
+	err := DB.Where("privet = ?", false).Find(&playlists).Error
+	return playlists, err
 }

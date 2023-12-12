@@ -39,7 +39,7 @@ func Listen(c user.Context) {
 	c.Data(http.StatusOK, "application/octet-stream", file)
 }
 
-func DeleteSong(c user.Context) {
+func RemoveSong(c user.Context) {
 	id, err := strconv.ParseUint(c.Query("SongID"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
@@ -55,7 +55,7 @@ func DeleteSong(c user.Context) {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		return
 	}
-	err = database.DeleteSong(1)
+	err = database.RemoveSong(uint(id))
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		return
@@ -109,4 +109,25 @@ func HandleFile(c user.Context, path string) error {
 	}
 	c.JSON(http.StatusOK, gin.H{"song": "uploaded"})
 	return nil
+}
+
+func GetAll(c user.Context) {
+	t := c.Query("type")
+	switch t {
+	case "song":
+		if songs, err := database.FindAllSongs(); err == nil {
+			c.JSON(http.StatusOK, songs)
+		} else {
+			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
+		}
+	case "playlist":
+		if playlists, err := database.FindAllPL(); err == nil {
+			c.JSON(http.StatusOK, playlists)
+		} else {
+			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
+		}
+	default:
+		c.JSON(http.StatusConflict, gin.H{"err": "shit"})
+
+	}
 }

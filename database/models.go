@@ -20,9 +20,10 @@ type Song struct {
 
 type PlayList struct {
 	ID     uint   `gorm:"primary_key"`
+	UserID uint   `gorm:"user_id;not null"`
 	Name   string `gorm:"column:name"`
 	Privet bool   `gorm:"column:privet"`
 	Songs  []Song `gorm:"foreignKey:id"`
 }
 
-// for liked Songs we make a default playlist named Liked Songs
+// for liked Songs we make a default playlist named Liked

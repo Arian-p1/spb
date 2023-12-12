@@ -35,7 +35,7 @@ func main() {
 	r.PUT("/profile/update", user.ValidateJWT, user.UpdateProfile)
 
 	r.POST("/player/listen", user.ValidateJWT, player.Listen)
-	r.POST("/player/delete", user.ValidateJWT, player.DeleteSong)
+	r.POST("/player/delete", user.ValidateJWT, player.RemoveSong)
 	r.POST("/player/update", user.ValidateJWT, player.SyncSong)
 	r.Run(":1234")
 }
