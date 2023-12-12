@@ -22,9 +22,18 @@ Delete
 Get own music with pagination, sort, search
 Get all music with pagination, sort, search
 Get Liked music with pagination, sort, search
-Like music
 remove like
 
+###########################################################################
+playlist
+
+
+Create
+Update
+Delete
+Get own playlist with pagination, sort, search
+Get all playlist with pagination, sort, search
+Get Liked playlist with pagination, sort, search
 
 ###########################################################################
 Tests
