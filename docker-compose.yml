@@ -66,9 +66,15 @@ services:
  nfs:
    image: itsthenetwork/nfs-server-alpine
    volumes:
-     - ./data:/data
+     - ./nsf:/nsf
    ports:
      - "2049:2049"
+
+ meilisync:
+    platform: linux/x86_64
+    image: long2ice/meilisync
+    volumes:
+      - ./config.yml:/meilisync/config.yml
  app:
    build:
      dockerfile: Dockerfile
