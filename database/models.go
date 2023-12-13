@@ -1,7 +1,7 @@
 package database
 
 type UserModel struct {
-	ID           uint   `gorm:"primary_key"`
+	ID           uint   `gorm:"primary_key;autoIncrement:false"`
 	Username     string `gorm:"column:username"`
 	Email        string `gorm:"column:email;unique_index"`
 	Token        string `gorm:"column:token;unique_index"`
@@ -11,7 +11,7 @@ type UserModel struct {
 
 type Song struct {
 	ID         uint   `gorm:"primary_key"`
-	UploadedBy uint   `gorm:"uploaded_by"`
+	UploadedBy uint   `gorm:"uploaded_by;not null"`
 	Name       string `gorm:"column:name;not null"`
 	Artist     string `gorm:"column:artist"`
 	PlayList   string `gorm:"column:playlist"`
@@ -19,7 +19,7 @@ type Song struct {
 }
 
 type PlayList struct {
-	ID     uint   `gorm:"primary_key"`
+	ID     uint   `gorm:"primary_key;autoIncrement:false"`
 	UserID uint   `gorm:"user_id;not null"`
 	Name   string `gorm:"column:name"`
 	Privet bool   `gorm:"column:privet"`

@@ -53,6 +53,12 @@ func Register(c Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"err": "fuuuuuuck"})
 		return
 	}
+
+	err = database.AddPlaylist(database.PlayList{ID: uid, UserID: uid, Name: "Liked", Privet: true, Songs: []database.Song{}})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"user": "added", "token": token})
 }
 

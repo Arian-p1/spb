@@ -71,4 +71,5 @@ func UpdatePlayList(c user.Context) {
 	c.JSON(http.StatusOK, "updated")
 }
 
-func LikeSong(c user.Context) {}
+func LikeSong(c user.Context) {
+}

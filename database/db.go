@@ -106,7 +106,7 @@ func SyncSong(changes func(song *Song), songid ...uint) (string, error) {
 		song.Path = "/nfs/" + song.Artist + "/" + song.PlayList + "/" + fmt.Sprint(song.ID) + ".mp3"
 		return song.Path, DB.Create(song).Error
 	} else {
-		song, err := FindSongById(songid[1]) //TODO: make sure index is ok
+		song, err := FindSongById(songid[0]) //TODO: make sure index is ok
 		if err != nil {
 			return "", err
 		}
@@ -128,6 +128,16 @@ func UpdatePlayList(pid uint, changes func(*PlayList)) error {
 	return DB.Updates(playlist).Error
 }
 
+func AddSongPlayList(playlistid uint, songid uint) error {
+	var pl PlayList
+	err := DB.First(&pl, playlistid).Error
+	var song Song
+	err = DB.First(&song, songid).Error
+	pl.Songs = append(pl.Songs, song)
+	err = DB.Save(pl).Error
+	return err
+}
+
 func RemovePlaylist(pid uint) error {
 	var playlist PlayList
 	if err := DB.Find(&playlist, pid).First(&playlist).Error; err == nil {
@@ -138,12 +148,23 @@ func RemovePlaylist(pid uint) error {
 	}
 }
 
-func FindAllSongs() ([]Song, error) {
+func FindAllSongs(uid uint) ([]Song, error) {
+	if uid != 0 {
+		var songs []Song
+		err := DB.Where("uploaded_by = ?", uid).Find(&songs).Error
+		return songs, err
+	}
 	var songs []Song
 	err := DB.Find(&songs).Error
 	return songs, err
 }
-func FindAllPL() ([]PlayList, error) {
+
+func FindAllPL(uid uint) ([]PlayList, error) {
+	if uid != 0 {
+		var playlists []PlayList
+		err := DB.Where("user_id = ?", uid).Find(&playlists).Error
+		return playlists, err
+	}
 	var playlists []PlayList
 	err := DB.Where("privet = ?", false).Find(&playlists).Error
 	return playlists, err

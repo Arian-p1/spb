@@ -113,15 +113,25 @@ func HandleFile(c user.Context, path string) error {
 
 func GetAll(c user.Context) {
 	t := c.Query("type")
+	f := c.Query("from")
+	uid := uint(0)
+	if f == "me" {
+		var err error
+		uid, err = user.IdFromJWT(c)
+		if err != nil {
+			c.JSON(http.StatusExpectationFailed, gin.H{"error": err.Error()})
+			return
+		}
+	}
 	switch t {
 	case "song":
-		if songs, err := database.FindAllSongs(); err == nil {
+		if songs, err := database.FindAllSongs(uid); err == nil {
 			c.JSON(http.StatusOK, songs)
 		} else {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		}
 	case "playlist":
-		if playlists, err := database.FindAllPL(); err == nil {
+		if playlists, err := database.FindAllPL(uid); err == nil {
 			c.JSON(http.StatusOK, playlists)
 		} else {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
