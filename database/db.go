@@ -144,6 +144,21 @@ func AddSongPlayList(playlistid uint, songid uint) error {
 	return err
 }
 
+func RemoveSongPlaylist(playlistid uint, songid uint) error {
+	var pl PlayList
+	err := DB.First(&pl, playlistid).Error
+	if err != nil {
+		return err
+	}
+	for index, song := range pl.Songs {
+		if song.ID == songid {
+			pl.Songs = append(pl.Songs[:index], pl.Songs[index+1:]...)
+		}
+	}
+	err = DB.Save(pl).Error
+	return err
+}
+
 func RemovePlaylist(pid uint) error {
 	var playlist PlayList
 	if err := DB.Find(&playlist, pid).First(&playlist).Error; err == nil {

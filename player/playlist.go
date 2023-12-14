@@ -90,21 +90,21 @@ func LikeSong(c user.Context) {
 	c.Status(200)
 }
 
-// func UnLike(c user.Context) {
-// 	sid, err := strconv.ParseUint(c.Query("song_id"), 10, 64)
-// 	if err != nil {
-// 		c.Status(400)
-// 		return
-// 	}
-// 	uid, err := user.IdFromJWT(c)
-// 	if err != nil {
-// 		c.Status(400)
-// 		return
-// 	}
-// 	err = database.Re(uid, uint(sid))
-// 	if err != nil {
-// 		c.Status(400)
-// 		return
-// 	}
-// 	c.Status(200)
-// }
+func UnLike(c user.Context) {
+	sid, err := strconv.ParseUint(c.Query("song_id"), 10, 64)
+	if err != nil {
+		c.Status(400)
+		return
+	}
+	uid, err := user.IdFromJWT(c)
+	if err != nil {
+		c.Status(400)
+		return
+	}
+	err = database.RemoveSongPlaylist(uid, uint(sid))
+	if err != nil {
+		c.Status(400)
+		return
+	}
+	c.Status(200)
+}
