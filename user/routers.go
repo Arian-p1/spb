@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/Arian-p1/spb/database"
@@ -59,7 +58,7 @@ func Register(c Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"user": "added", "token": token})
+	c.JSON(201, gin.H{"token": token})
 }
 
 func Login(c Context) {
@@ -71,30 +70,36 @@ func Login(c Context) {
 	if database.UserExsist(reqj.Email) {
 		uid, err := database.PassCheck(reqj.Email, reqj.Password)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"Status": err.Error()})
+			c.JSON(http.StatusOK, gin.H{"Status": "email or password is wrong"})
 			return
 		}
 		token, err := database.GenerateJWT(uid)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"Status": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"Status": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"Status": "Ok", "Token": token})
+		c.JSON(http.StatusOK, gin.H{"token": token})
 		return
 	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": errors.New("user doesent exist")})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email or password is wrong"})
 		return
 	}
 }
 
 func Profile(c Context) {
-	c.JSON(http.StatusOK, gin.H{"yaay": "yooo"})
+	id, err := IdFromJWT(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		return
+	}
+	data := database.GetUser(id)
+	c.JSON(http.StatusOK, gin.H{"id": data.ID, "email": data.Email, "username": data.Username, "Bio": data.Bio, "token": data.Token})
 }
 
 func UpdateProfile(c Context) {
 	uid, err := IdFromJWT(c)
 	if err != nil {
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	var ureq UserUpdate
@@ -106,7 +111,7 @@ func UpdateProfile(c Context) {
 		if ureq.Username != "" {
 			user.Username = ureq.Username
 		}
-		if ureq.Email != "" {
+		if ureq.Email != "" && helper.EmailValidator(ureq.Email) == nil {
 			user.Email = ureq.Email
 		}
 		if ureq.Bio != "" {
@@ -117,7 +122,7 @@ func UpdateProfile(c Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusBadRequest, gin.H{"status": "updated"})
+	c.Status(http.StatusOK)
 }
 
 type changepasswd struct {
@@ -129,17 +134,19 @@ func ChangePasswd(c Context) {
 	var change changepasswd
 	err := c.ShouldBindBodyWith(&change, binding.JSON)
 	if err != nil {
-		c.JSON(http.StatusPreconditionFailed, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
 	id, err := IdFromJWT(c)
 	if err != nil {
-		c.JSON(http.StatusPreconditionFailed, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
 	err = database.ChangePasswd(id, change.Old, change.New)
 	if err != nil {
-		c.JSON(http.StatusPreconditionFailed, gin.H{"err": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
 	}
-	c.JSON(http.StatusPreconditionFailed, gin.H{"status": "password changed"})
+	if err == nil {
+		c.Status(200)
+	}
 }

@@ -40,6 +40,11 @@ func UserExsist(email string) bool {
 		return false
 	}
 }
+func GetUser(id uint) UserModel {
+	var user UserModel
+	DB.First(&user, id)
+	return user
+}
 
 // returns uid if the password was correct
 func PassCheck(email string, pass string) (uint, error) {
@@ -48,7 +53,7 @@ func PassCheck(email string, pass string) (uint, error) {
 	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(pass)) == nil {
 		return user.ID, nil
 	} else {
-		return 0, errors.New("dont brute force mother fucker")
+		return 0, errors.New("wrong email or password")
 	}
 }
 
@@ -65,19 +70,20 @@ func UpdateProfile(uid uint, changes func(user *UserModel)) error {
 
 func ChangePasswd(uid uint, oldpasswd string, newpasswd string) error {
 	var user UserModel
-	if err := DB.Find(&user, uid).First(&user).Error; err == nil {
-		if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldpasswd)) == nil {
-			p, err := bcrypt.GenerateFromPassword([]byte(newpasswd), 8)
-			if err == nil {
-				user.PasswordHash = string(p)
-				DB.Save(&user)
-			}
-			return err
-		}
-		return err
-	} else {
+	err := DB.Find(&user, uid).First(&user).Error
+	if err != nil {
 		return err
 	}
+	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(oldpasswd)) == nil {
+		p, err := bcrypt.GenerateFromPassword([]byte(newpasswd), 8)
+		if err == nil {
+			user.PasswordHash = string(p)
+			DB.Save(&user)
+		}
+	} else {
+		err = errors.New("old password is wrong")
+	}
+	return err
 }
 
 func FindSongById(songid uint) (Song, error) {

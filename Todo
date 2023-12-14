@@ -37,3 +37,16 @@ Get Liked playlist with pagination, sort, search
 
 ###########################################################################
 Tests
+
+
+###########################################################################
+BUGS
+
+register success 201-
+register email validate (regex)-
+login error mide-
+login status token bayad t kochik bashe-
+update vaghti status ride-
+update error updated-
+Get Profile profile bede-
+Change password matn response ride-

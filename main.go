@@ -36,6 +36,13 @@ func main() {
 
 	r.POST("/player/listen", user.ValidateJWT, player.Listen)
 	r.POST("/player/delete", user.ValidateJWT, player.RemoveSong)
-	r.POST("/player/update", user.ValidateJWT, player.SyncSong)
+	r.POST("/player/updatesong", user.ValidateJWT, player.SyncSong)
+
+	r.POST("/player/search", user.ValidateJWT, player.Search)
+	r.POST("/player/list", user.ValidateJWT, player.GetAll)
+
+	r.POST("/player/addpl", user.ValidateJWT, player.CreatPlaylist)
+	r.POST("/player/rmpl", user.ValidateJWT, player.RemovePlayList)
+	r.POST("/player/likesong", user.ValidateJWT, player.LikeSong)
 	r.Run(":1234")
 }

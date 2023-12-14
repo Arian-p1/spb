@@ -141,3 +141,27 @@ func GetAll(c user.Context) {
 
 	}
 }
+
+func Search(c user.Context) {
+	t := c.Query("type")
+	n := c.Query("name")
+	switch t {
+	case "song":
+		var songs []database.Song
+		if err := database.Search(songs, n); err == nil {
+			c.JSON(http.StatusOK, songs)
+		} else {
+			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
+		}
+	case "playlist":
+		var playlists []database.PlayList
+		if err := database.Search(playlists, n); err == nil {
+			c.JSON(http.StatusOK, playlists)
+		} else {
+			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
+		}
+	default:
+		c.JSON(http.StatusConflict, gin.H{"err": "shit"})
+
+	}
+}

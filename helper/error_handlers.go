@@ -1,11 +1,8 @@
 package helper
 
 import (
-	"errors"
-	"strings"
+	"net/mail"
 )
-
-
 
 func Panic(err error) {
 	if err != nil {
@@ -13,14 +10,7 @@ func Panic(err error) {
 	}
 }
 
-func EmailValidator(mail string) error {
-	r := strings.Split(mail, "@")
-	err := errors.New("email is wrong")
-	if len(r) != 2 {
-		return err
-	}
-	if strings.Count(r[1], ".") != 1 {
-		return err
-	}
-	return nil
+func EmailValidator(email string) error {
+	_, err := mail.ParseAddress(email)
+	return err
 }
