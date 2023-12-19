@@ -7,7 +7,6 @@ import (
 	"github.com/Arian-p1/spb/helper"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,17 +32,9 @@ func Register(c Context) {
 		return
 	}
 	p, _ := bcrypt.GenerateFromPassword([]byte(reqj.Password), 8)
-	uid := uint(uuid.New().ID())
-	token, err := database.GenerateJWT(uid)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Please try Again"})
-		return
-	}
 	u := database.UserModel{
-		ID:           uid,
 		Username:     "",
 		Email:        reqj.Email,
-		Token:        token,
 		Bio:          "",
 		PasswordHash: string(p),
 	}
@@ -53,9 +44,14 @@ func Register(c Context) {
 		return
 	}
 
-	err = database.AddPlaylist(database.PlayList{ID: uid, UserID: uid, Name: "Liked", Privet: true, Songs: []database.Song{}})
+	err := database.AddPlaylist(database.PlayList{UserID: u.ID, Name: "Liked", Privet: true, Songs: []database.Song{}})
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	token, err := database.GenerateJWT(u.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Please try Again"})
 		return
 	}
 	c.JSON(201, gin.H{"token": token})
@@ -93,7 +89,7 @@ func Profile(c Context) {
 		return
 	}
 	data := database.GetUser(id)
-	c.JSON(http.StatusOK, gin.H{"id": data.ID, "email": data.Email, "username": data.Username, "Bio": data.Bio, "token": data.Token})
+	c.JSON(http.StatusOK, gin.H{"id": data.ID, "email": data.Email, "username": data.Username, "Bio": data.Bio})
 }
 
 func UpdateProfile(c Context) {

@@ -29,20 +29,20 @@ func main() {
 	})
 	r.POST("/register", user.Register)
 	r.POST("/login", user.Login)
+	profileG := r.Group("/profile", user.ValidateJWT)
+	playerG := r.Group("/player", user.ValidateJWT)
 
-	r.GET("/profile", user.ValidateJWT, user.Profile)
-	r.POST("/profile/change-password", user.ValidateJWT, user.ChangePasswd)
-	r.PUT("/profile/update", user.ValidateJWT, user.UpdateProfile)
+	profileG.GET("/", user.ValidateJWT, user.Profile)
+	profileG.POST("/change-password", user.ValidateJWT, user.ChangePasswd)
+	profileG.PUT("/update", user.ValidateJWT, user.UpdateProfile)
 
-	r.POST("/player/listen", user.ValidateJWT, player.Listen)
-	r.POST("/player/delete", user.ValidateJWT, player.RemoveSong)
-	r.POST("/player/updatesong", user.ValidateJWT, player.SyncSong)
-
-	r.POST("/player/search", user.ValidateJWT, player.Search)
-	r.POST("/player/list", user.ValidateJWT, player.GetAll)
-
-	r.POST("/player/addpl", user.ValidateJWT, player.CreatPlaylist)
-	r.POST("/player/rmpl", user.ValidateJWT, player.RemovePlayList)
-	r.POST("/player/likesong", user.ValidateJWT, player.LikeSong)
+	playerG.POST("/listen", user.ValidateJWT, player.Listen)
+	playerG.DELETE("/delete", user.ValidateJWT, player.RemoveSong)
+	playerG.POST("/updatesong", user.ValidateJWT, player.SyncSong)
+	playerG.POST("/search", user.ValidateJWT, player.Search)
+	playerG.POST("/list", user.ValidateJWT, player.GetAll)
+	playerG.POST("/addpl", user.ValidateJWT, player.CreatPlaylist)
+	playerG.DELETE("/rmpl", user.ValidateJWT, player.RemovePlayList)
+	playerG.POST("/likesong", user.ValidateJWT, player.LikeSong)
 	r.Run(":1234")
 }

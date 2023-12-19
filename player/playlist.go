@@ -8,7 +8,6 @@ import (
 	"github.com/Arian-p1/spb/user"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/google/uuid"
 )
 
 type syncPlaylist struct {
@@ -23,19 +22,15 @@ func CreatPlaylist(c user.Context) {
 	if err != nil {
 		c.JSON(http.StatusConflict, err.Error())
 	}
-	id := uint(uuid.New().ID())
-	if err != nil {
-		c.JSON(http.StatusConflict, err.Error())
-	}
 	userid, err := user.IdFromJWT(c)
 	if err != nil {
 		c.JSON(http.StatusConflict, err.Error())
 	}
-	err = database.AddPlaylist(database.PlayList{ID: id, UserID: userid, Name: pl.Name, Privet: pl.Privet, Songs: pl.Songs})
+	err = database.AddPlaylist(database.PlayList{UserID: userid, Name: pl.Name, Privet: pl.Privet, Songs: pl.Songs})
 	if err != nil {
 		c.JSON(http.StatusConflict, err.Error())
 	}
-	c.JSON(http.StatusOK, gin.H{"id": id})
+	c.Status(http.StatusOK)
 }
 
 func RemovePlayList(c user.Context) {
