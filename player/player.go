@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/Arian-p1/spb/database"
 	"github.com/Arian-p1/spb/user"
@@ -103,11 +104,32 @@ func SyncSong(c user.Context) {
 }
 
 func HandleFile(c user.Context, path string) error {
-	file, _ := c.FormFile("file")
-	if err := c.SaveUploadedFile(file, path); err != nil {
+	errChan := make(chan error)
+
+	go func() {
+		file, err := c.FormFile("file")
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		if err := c.SaveUploadedFile(file, path); err != nil {
+			errChan <- err
+			return
+		}
+
+		errChan <- nil
+	}()
+
+	err := <-errChan
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Unable to save the file",
+		})
 		return err
 	}
-	c.JSON(http.StatusOK, gin.H{"song": "uploaded"})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Your file has been successfully uploaded."})
 	return nil
 }
 
