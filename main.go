@@ -1,36 +1,44 @@
 package main
 
 import (
+  "net/http"
+
 	"github.com/Arian-p1/spb/database"
-	"github.com/Arian-p1/spb/helper"
 	"github.com/Arian-p1/spb/player"
 	"github.com/Arian-p1/spb/user"
+	"github.com/Arian-p1/spb/templates"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	err := godotenv.Load(".env")
-	helper.Panic(err)
-
+	if err != nil {
+    panic(err)
+  }
 	err = database.DatabaseConnection()
-	helper.Panic(err)
-
+	if err != nil {
+    panic(err)
+  }
 	err = database.Migration()
-	helper.Panic(err)
+	if err != nil {
+    panic(err)
+  }
 
-	r := gin.Default()
-	r.ForwardedByClientIP = true
-	r.SetTrustedProxies([]string{"127.0.0.1"})
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Ok Response",
-		})
+	engine := gin.Default()
+  a := engine.HTMLRender
+  engine.HTMLRender = &templates.HTMLTemplRenderer{FallbackHtmlRenderer: a}
+
+	engine.ForwardedByClientIP = true
+	engine.SetTrustedProxies([]string{"127.0.0.1"})
+  engine.StaticFile("./static/output.css", "./static/output.css")
+	engine.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "", templates.Hello())
 	})
-	r.POST("/register", user.Register)
-	r.POST("/login", user.Login)
-	profileG := r.Group("/profile", user.ValidateJWT)
-	playerG := r.Group("/player", user.ValidateJWT)
+	engine.POST("/register", user.Register)
+	engine.POST("/login", user.Login)
+	profileG := engine.Group("/profile", user.ValidateJWT)
+	playerG := engine.Group("/player", user.ValidateJWT)
 
 	profileG.GET("/", user.ValidateJWT, user.Profile)
 	profileG.POST("/change-password", user.ValidateJWT, user.ChangePasswd)
@@ -44,5 +52,5 @@ func main() {
 	playerG.POST("/addpl", user.ValidateJWT, player.CreatPlaylist)
 	playerG.DELETE("/rmpl", user.ValidateJWT, player.RemovePlayList)
 	playerG.POST("/likesong", user.ValidateJWT, player.LikeSong)
-	r.Run(":1234")
+	engine.Run(":1234")
 }

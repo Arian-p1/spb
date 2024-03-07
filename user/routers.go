@@ -2,9 +2,9 @@ package user
 
 import (
 	"net/http"
+	"net/mail"
 
 	"github.com/Arian-p1/spb/database"
-	"github.com/Arian-p1/spb/helper"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"golang.org/x/crypto/bcrypt"
@@ -17,13 +17,19 @@ type SignReq struct {
 	Password string `json:"password"`
 }
 
+type UserUpdate struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Bio      string `json:"bio"`
+}
+
 func Register(c Context) {
 	var reqj SignReq
 	if err := c.ShouldBindBodyWith(&reqj, binding.JSON); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := helper.EmailValidator(reqj.Email); err != nil {
+	if _, err := mail.ParseAddress(reqj.Email); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -107,7 +113,8 @@ func UpdateProfile(c Context) {
 		if ureq.Username != "" {
 			user.Username = ureq.Username
 		}
-		if ureq.Email != "" && helper.EmailValidator(ureq.Email) == nil {
+    _, merr := mail.ParseAddress(ureq.Email)
+		if ureq.Email != "" && merr == nil {
 			user.Email = ureq.Email
 		}
 		if ureq.Bio != "" {

@@ -59,22 +59,23 @@ services:
      - POSTGRES_USER=root
      - POSTGRES_PASSWORD=password
      - POSTGRES_DB=batman
-   ports:
-     - '5432:5432'
    volumes:
      - db:/var/lib/postgresql/data
- nfs:
-   image: itsthenetwork/nfs-server-alpine
-   volumes:
-     - ./nsf:/nsf
-   ports:
-     - "2049:2049"
+   healthcheck:
+     test: "psql postgresql://root:password@localhost:5432/batman?sslmode=disable"
+     interval: 10s
+     timeout: 5s
+     retries: 5
+ # nfs:
+ #   image: itsthenetwork/nfs-server-alpine
+ #   volumes:
+ #     - ./nsf:/nsf
 
- meilisync:
-    platform: linux/x86_64
-    image: long2ice/meilisync
-    volumes:
-      - ./config.yml:/meilisync/config.yml
+ # meilisync:
+ #    platform: linux/x86_64
+ #    image: long2ice/meilisync
+ #    volumes:
+ #      - ./config.yml:/meilisync/config.yml
  app:
    build:
      dockerfile: Dockerfile
@@ -83,13 +84,18 @@ services:
      - POSTGRES_USER=root
      - POSTGRES_PASSWORD=password
      - POSTGRES_DB=batman
-     - DBHOST=127.0.0.1
+     - DBHOST=db
      - DBPORT=5432
+     - GOPROXY=https://goproxy.io,direct
+     - export GOPRIVATE=git.Arian-p1.com,github.com/spb
 
    #   API_SERVER_ADDR: ":1234"
    #   DATABASE_URL: postgres://local-dev@db/api?sslmode=disable
    ports:
      - "1234:1234"
+   depends_on:
+     db:
+       condition: service_healthy
    links:
      - db
 volumes:

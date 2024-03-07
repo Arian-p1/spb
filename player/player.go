@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 
 	"github.com/Arian-p1/spb/database"
 	"github.com/Arian-p1/spb/user"

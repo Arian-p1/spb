@@ -3,12 +3,13 @@ package database
 import (
 	"log"
 	"time"
+  "os"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func GenerateJWT(userid uint) (string, error) {
-	jwtKey := []byte("dsfha398f@@!)($#!fdhsasd)")
+	jwtKey := []byte(os.Getenv("SECRET"))
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["authorized"] = true
