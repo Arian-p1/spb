@@ -1,104 +1,41 @@
-# version: '3.8'
-# services:
-#   db:
-#     image: postgres:latest
-#     env_file:
-#       - .env
-#     ports:
-#       - 5432:5432
-#     volumes:
-#       - /var/lib/postgresql/data
-#
-#   rest:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile
-#     env_file:
-#       - .env
-#   data:
-#     image: gg
-#
-# services:
-#   app-db:
-#     image: docker.io/library/postgres:13.2
-#     environment:
-#       - POSTGRES_USER=${POSTGRES_USER:-bloodhound}
-#       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-bullshit}
-#       - POSTGRES_DB=${POSTGRES_DB:-bloodhound}
-#     # Database ports are disabled by default. Please change your database password to something secure before uncommenting
-#     # ports:
-#     #   - ${POSTGRES_PORT:-5432}:5432
-#     volumes:
-#       - postgres-data:/var/lib/postgresql/data
-#     healthcheck:
-#       test:
-#         [
-#           "CMD-SHELL",
-#           "pg_isready -U ${POSTGRES_USER:-bloodhound} -d ${POSTGRES_DB:-bloodhound} -h 127.0.0.1 -p 5432"
-#         ]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-#       start_period: 30s
-#
+version: "3.8"
 
-
-
-##########################################################################
-
-
-
-
-
-version: '3.8'
 services:
- db:
-   image: postgres:latest
-   restart: always
-   environment:
-     - POSTGRES_USER=root
-     - POSTGRES_PASSWORD=password
-     - POSTGRES_DB=batman
-   volumes:
-     - db:/var/lib/postgresql/data
-   healthcheck:
-     test: "psql postgresql://root:password@localhost:5432/batman?sslmode=disable"
-     interval: 10s
-     timeout: 5s
-     retries: 5
- # nfs:
- #   image: itsthenetwork/nfs-server-alpine
- #   volumes:
- #     - ./nsf:/nsf
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: "psql postgresql://root:password@localhost:5432/batman?sslmode=disable"
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
- # meilisync:
- #    platform: linux/x86_64
- #    image: long2ice/meilisync
- #    volumes:
- #      - ./config.yml:/meilisync/config.yml
- app:
-   build:
-     dockerfile: Dockerfile
-     context: ./
-   environment:
-     - POSTGRES_USER=root
-     - POSTGRES_PASSWORD=password
-     - POSTGRES_DB=batman
-     - DBHOST=db
-     - DBPORT=5432
-     - GOPROXY=https://goproxy.io,direct
-     - export GOPRIVATE=git.Arian-p1.com,github.com/spb
+  minio:
+    image: quay.io/minio/minio
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - minio_data:/data
 
-   #   API_SERVER_ADDR: ":1234"
-   #   DATABASE_URL: postgres://local-dev@db/api?sslmode=disable
-   ports:
-     - "1234:1234"
-   depends_on:
-     db:
-       condition: service_healthy
-   links:
-     - db
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    env_file:
+      - .env
+    ports:
+      - "1234:1234"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
 volumes:
- db:
-   driver: local
-
+  postgres_data:
+  minio_data:
+  app_data:

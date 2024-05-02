@@ -1,0 +1,33 @@
+package view
+
+
+templ Player(songsrc string) {
+  <div class="flex items-center justify-between bg-gray-800 text-white px-4 py-2">
+    <div class="flex items-center space-x-2">
+      <button hx-get="/api/play" hx-target="#player" hx-swap="innerHTML">
+        <!-- Play button SVG -->
+      </button>
+      <div class="truncate">
+        <span id="song-title">Song Title</span> - <span id="artist">Artist Name</span>
+      </div>
+    </div>
+    <div class="w-full">
+      <div class="h-2 bg-gradient-to-r from-green-500 to-green-700 rounded-full">
+        <template hx-swap hx-boost="true">
+          <div id="progress-bar" class="h-full bg-white rounded-full animate-fill-up" style="width: 0%;"></div>
+        </template>
+      </div>
+    </div>
+    <button hx-get="/api/next" hx-target="#player" hx-swap="innerHTML">
+      <!-- Next button SVG -->
+    </button>
+  </div>
+  <audio id="player" src="{{songsrc}}"></audio> <!-- Ensuring songsrc is correctly interpolated -->
+}
+
+
+// front
+//<form action="http://your-restapi-server:8080/upload" method="POST" enctype="multipart/form-data">
+//  <input type="file" name="file"> <button type="submit">Upload</button>
+//</form>
+
