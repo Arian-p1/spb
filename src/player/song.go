@@ -32,8 +32,8 @@ func Listen(c *gin.Context) {
 		return
 	}
 
-  ctx := context.Background()
-  slink, err := objectstorage.Get(ctx, song.ObjName)
+	ctx := context.Background()
+	slink, err := objectstorage.Get(ctx, song.ObjName)
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		return
@@ -44,7 +44,7 @@ func Listen(c *gin.Context) {
 	}
 	c.Header("Content-Disposition", "attachment; filename=file-name.txt")
 	c.Header("application/octet-stream", slink.Path)
-  c.Status(http.StatusOK)
+	c.Status(http.StatusOK)
 }
 
 func RemoveSong(c *gin.Context) {
@@ -58,7 +58,7 @@ func RemoveSong(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		return
 	}
-  ctx := context.Background()
+	ctx := context.Background()
 	err = objectstorage.Remove(ctx, song.ObjName)
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
@@ -82,7 +82,7 @@ func SyncSong(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 		return
 	}
-  ctx := context.Background()
+	ctx := context.Background()
 	if ssong.ID == -1 {
 		obj, err := database.SyncSong(false, func(song *database.Song) {
 			song.Name = ssong.Name
@@ -93,17 +93,17 @@ func SyncSong(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 			return
 		}
-    fheader, err := c.FormFile("file")
+		fheader, err := c.FormFile("file")
 		if err != nil {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 			return
 		}
-    file, err := fheader.Open()
+		file, err := fheader.Open()
 		if err != nil {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 			return
 		}
-    err = objectstorage.Upload(ctx, obj, file, *fheader)
+		err = objectstorage.Upload(ctx, obj, file, *fheader)
 		if err != nil {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 			return
@@ -113,13 +113,13 @@ func SyncSong(c *gin.Context) {
       return
     }
 	} else {
-    err = database.RemoveSong(uint(ssong.ID))
+		err = database.RemoveSong(uint(ssong.ID))
 		if err != nil {
 			c.JSON(http.StatusConflict, gin.H{"err": err.Error()})
 			return
 		}
 		obj, err := database.SyncSong(true, func(song *database.Song) {
-      song.ID = uint(ssong.ID)
+		song.ID = uint(ssong.ID)
 			song.Name = ssong.Name
 			song.Artist = ssong.Artist
 			song.PlayList = ssong.PlayList

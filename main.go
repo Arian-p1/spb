@@ -13,7 +13,7 @@ func main() {
 		panic(err)
 	}
 
-  err = objectstorage.Init()
+  	err = objectstorage.Init()
 	if err != nil {
 		panic(err)
 	}

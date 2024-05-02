@@ -16,7 +16,7 @@ type Song struct {
 	Name     string `gorm:"column:name;not null"`
 	Artist   string `gorm:"column:artist"`
 	PlayList string `gorm:"column:playlist"`
-  ObjName  string `gorm:"column:objname"`
+	ObjName  string `gorm:"column:objname"`
 }
 
 type PlayList struct {

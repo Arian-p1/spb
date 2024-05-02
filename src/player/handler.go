@@ -3,7 +3,7 @@ package player
 import "github.com/gin-gonic/gin"
 
 func Handler(rg *gin.RouterGroup) {
-  rg.POST("/listen", Listen)
+	rg.POST("/listen", Listen)
 	rg.DELETE("/delete", RemoveSong)
 	rg.POST("/updatesong", SyncSong)
 	rg.POST("/search", Search)

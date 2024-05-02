@@ -9,11 +9,11 @@ import (
 
 func Init() *gin.Engine {
 	engine := gin.Default()
-  engine.POST("/register", user.Register)
+  	engine.POST("/register", user.Register)
 	engine.POST("/login", user.Login)
 	profileGroup := engine.Group("/profile", security.ValidateJWT)
 	playerGroup := engine.Group("/player", security.ValidateJWT)
 	user.Handler(profileGroup)
 	player.Handler(playerGroup)
-  return engine
+	return engine
 }
